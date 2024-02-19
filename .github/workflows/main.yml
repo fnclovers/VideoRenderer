@@ -12,6 +12,7 @@ on:
       - Readme.md
       - history.txt
   workflow_dispatch:
+    paths-ignore:
       - .github/workflows/main.yml      
       - Readme.md
       - history.txt
