@@ -11,6 +11,10 @@ on:
       - .github/workflows/main.yml      
       - Readme.md
       - history.txt
+  workflow_dispatch:
+      - .github/workflows/main.yml      
+      - Readme.md
+      - history.txt
 
 jobs:
   build:
