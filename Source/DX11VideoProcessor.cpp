@@ -1765,13 +1765,7 @@ HRESULT CDX11VideoProcessor::InitializeD3D11VP(const FmtConvParams_t& params, co
 
 	if ((m_bVPUseRTXVideoHDR && !m_pDXGISwapChain4)
 			|| (!m_bVPUseRTXVideoHDR && m_pDXGISwapChain4 && !SourceIsHDR())) {
-		ReleaseSwapChain();
 		InitSwapChain();
-		m_bHdrAllowSwitchDisplay = false;
-		InitMediaType(&m_pFilter->m_inputMT);
-		m_bHdrAllowSwitchDisplay = true;
-
-		return S_OK;
 	}
 
 	hr = m_TexSrcVideo.Create(m_pDevice, dxgiFormat, width, height, Tex2D_DynamicShaderWriteNoSRV);
@@ -1935,7 +1929,7 @@ HRESULT CDX11VideoProcessor::ProcessSample(IMediaSample* pSample)
 	}
 
 	// always Render(1) a frame after CopySample()
-	hr = Render(1);
+	hr = Render(1, rtStart);
 	m_pFilter->m_DrawStats.Add(GetPreciseTick());
 	if (m_pFilter->m_filterState == State_Running) {
 		m_pFilter->StreamTime(rtClock);
@@ -1955,13 +1949,14 @@ HRESULT CDX11VideoProcessor::ProcessSample(IMediaSample* pSample)
 			return S_FALSE; // skip frame
 		}
 
-		hr = Render(2);
+		rtStart += rtFrameDur / 2;
+
+		hr = Render(2, rtStart);
 		m_pFilter->m_DrawStats.Add(GetPreciseTick());
 		if (m_pFilter->m_filterState == State_Running) {
 			m_pFilter->StreamTime(rtClock);
 		}
 
-		rtStart += rtFrameDur / 2;
 		m_RenderStats.syncoffset = rtClock - rtStart;
 
 		so = (int)std::clamp(m_RenderStats.syncoffset, -UNITS, UNITS);
@@ -2217,7 +2212,7 @@ HRESULT CDX11VideoProcessor::CopySample(IMediaSample* pSample)
 	return hr;
 }
 
-HRESULT CDX11VideoProcessor::Render(int field)
+HRESULT CDX11VideoProcessor::Render(int field, REFERENCE_TIME rt/* = INVALID_TIME*/)
 {
 	CheckPointer(m_TexSrcVideo.pTexture, E_FAIL);
 	CheckPointer(m_pDXGISwapChain1, E_FAIL);
@@ -2372,6 +2367,8 @@ HRESULT CDX11VideoProcessor::Render(int field)
 		hr = m_pDXGIOutput->WaitForVBlank();
 		DLogIf(FAILED(hr), L"WaitForVBlank failed with error {}", HR2Str(hr));
 	}
+
+	SyncFrameToStreamTime(rt);
 
 	g_bPresent = true;
 	hr = m_pDXGISwapChain1->Present(1, 0);
