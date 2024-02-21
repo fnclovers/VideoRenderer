@@ -2368,7 +2368,7 @@ HRESULT CDX11VideoProcessor::Render(int field, REFERENCE_TIME rt/* = INVALID_TIM
 		DLogIf(FAILED(hr), L"WaitForVBlank failed with error {}", HR2Str(hr));
 	}
 
-	SyncFrameToStreamTime(rt);
+	// SyncFrameToStreamTime(rt);
 
 	g_bPresent = true;
 	hr = m_pDXGISwapChain1->Present(1, 0);
