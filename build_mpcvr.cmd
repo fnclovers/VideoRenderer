@@ -24,8 +24,8 @@ SET "PROJECT=MpcVideoRenderer"
 
 SET "MSBUILD_SWITCHES=/nologo /consoleloggerparameters:Verbosity=minimal /maxcpucount /nodeReuse:true"
 SET "BUILDTYPE=Build"
-SET "BUILDCFG=Release"
-SET "SUFFIX="
+SET "BUILDCFG=Debug"
+SET "SUFFIX=_Debug"
 SET "SIGN=False"
 SET "Wait=True"
 

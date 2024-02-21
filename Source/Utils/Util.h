@@ -39,16 +39,13 @@ inline void DebugLogFmt(std::wstring_view format, Args&& ...args)
 	DbgLogInfo(LOG_TRACE, 3, std::vformat(format, std::make_wformat_args(args...)).c_str());
 }
 
-// #ifdef _DEBUG
-// #define DLog(...) DebugLogFmt(__VA_ARGS__)
-// #define DLogIf(f,...) {if (f) DebugLogFmt(__VA_ARGS__);}
-// #else
-// #define DLog(...) __noop
-// #define DLogIf(f,...) __noop
-// #endif
-
+#ifdef _DEBUG
 #define DLog(...) DebugLogFmt(__VA_ARGS__)
 #define DLogIf(f,...) {if (f) DebugLogFmt(__VA_ARGS__);}
+#else
+#define DLog(...) __noop
+#define DLogIf(f,...) __noop
+#endif
 
 #define SAFE_RELEASE(p)      { if (p) { (p)->Release(); (p) = nullptr; } }
 #define SAFE_CLOSE_HANDLE(p) { if (p) { if ((p) != INVALID_HANDLE_VALUE) ASSERT(CloseHandle(p)); (p) = nullptr; } }
